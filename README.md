@@ -308,27 +308,3 @@ npm run lint    # ESLint检查和修复
 npm run format  # Prettier格式化
 ```
 
-## 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
-
-## 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
-
-## 联系方式
-
-如有问题或建议，请通过以下方式联系：
-
-- 项目维护者: [您的姓名]
-- 邮箱: [您的邮箱]
-- 项目主页: [项目仓库地址]
-
----
-
-**注意**: 请确保在开发过程中遵循代码规范，使用ESLint和Prettier进行代码检查和格式化。</content>
-<parameter name="filePath">c:\Users\25329\Desktop\陪诊系统\README.md
