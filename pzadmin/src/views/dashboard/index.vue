@@ -1,5 +1,11 @@
 <script setup>
 import PanelHead from '@/components/panelHead.vue'
+import {
+  CircleCheckFilled,
+  CircleCloseFilled,
+  Timer,
+  WalletFilled,
+} from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
 import { onMounted, ref, reactive } from 'vue'
 import { report } from '@/api/index.js'
@@ -30,18 +36,29 @@ const user = ref({
   user_name: '',
 })
 const typeList = ref([])
-const imageMap = {
-  待支付: '../../../public/images/dzf.png',
-  待服务: '../../../public/images/dfw.png',
-  已完成: '../../../public/images/ywc.png',
-  已取消: '../../../public/images/yqx.png',
+const typeConfigMap = {
+  待支付: {
+    color: 'rgb(255, 165, 0)',
+    icon: WalletFilled,
+  },
+  待服务: {
+    color: 'rgb(0, 200, 0)',
+    icon: Timer,
+  },
+  已完成: {
+    color: 'rgb(0, 123, 255)',
+    icon: CircleCheckFilled,
+  },
+  已取消: {
+    color: 'rgb(128, 128, 128)',
+    icon: CircleCloseFilled,
+  },
 }
-const colorMap = {
-  待支付: 'rgb(255, 165, 0)',
-  待服务: 'rgb(0, 200, 0)',
-  已完成: 'rgb(0, 123, 255)',
-  已取消: 'rgb(128, 128, 128)',
-}
+const getTypeConfig = (state) =>
+  typeConfigMap[state] || {
+    color: 'rgb(144, 147, 153)',
+    icon: Timer,
+  }
 const types = ref([])
 const xOptions = reactive({
   // 图例文字颜色
@@ -123,11 +140,12 @@ onMounted(() => {
     <el-card style="width: 800px">
       <div class="orders">
         <div class="order" v-for="(item, index) in types" :key="index">
-          <el-image
+          <div
             class="typeImage"
-            :src="imageMap[item.state]"
-            :style="{ backgroundColor: colorMap[item.state] }"
-          ></el-image>
+            :style="{ backgroundColor: getTypeConfig(item.state).color }"
+          >
+            <component :is="getTypeConfig(item.state).icon" class="typeIcon" />
+          </div>
           <div class="text">
             <div class="text1">{{ item.num }}</div>
             <div class="text2">{{ item.state }}</div>
@@ -180,9 +198,18 @@ onMounted(() => {
       margin-right: 100px;
       display: flex;
       align-items: center;
-      :deep(.typeImage) {
+      .typeImage {
         width: 70px;
         height: 70px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+      }
+      .typeIcon {
+        width: 40px;
+        height: 40px;
       }
       .text {
         margin-left: 10px;

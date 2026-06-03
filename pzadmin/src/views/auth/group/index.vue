@@ -4,7 +4,6 @@ import { menuList, userGetMenu, userSetMenu } from '@/api/index.js'
 import PanelHead from '@/components/panelHead.vue'
 import { useRoute } from 'vue-router'
 
-
 const dialogFormVisible = ref(false)
 const beforeClose = () => {
   dialogFormVisible.value = false
@@ -68,7 +67,7 @@ const getListData = () => {
   menuList(paginationData.value).then((result) => {
     console.log(result)
     const { list, total } = result.data.data
-    console.log(list)
+    console.log("list",list)
     console.log(total)
     tableData.value.list = list
     tableData.value.total = total

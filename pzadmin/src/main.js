@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import '@/style.css'
-import ElementPlus, { localeContextKey } from 'element-plus'
+import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
@@ -10,15 +10,10 @@ import router from './router'
 import panelHead from './components/panelHead.vue'
 import { useDataStore } from '@/stores/index.js'
 
-
-
-
-
 const app = createApp(App)
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
-
 
 // pinia-plugin-persistedstate 持久化时会将状态序列化为 JSON，函数（如 component）会被丢弃
 // 导致 store.routerList 中的 component 变为 undefined。
@@ -40,7 +35,6 @@ if (localData) {
     router.addRoute('main', item)
   })
 }
-
 
 app.use(router)
 app.use(ElementPlus)
