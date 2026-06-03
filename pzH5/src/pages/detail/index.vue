@@ -5,6 +5,10 @@ import { computed, getCurrentInstance, onMounted, ref } from 'vue'
 import Counter from '@/components/counter.vue'
 import qrcode from 'qrcode'
 
+defineOptions({
+  name: 'OrderDetailPage',
+})
+
 const router = useRouter()
 const route = useRoute()
 const goBack = () => {

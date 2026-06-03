@@ -22,8 +22,6 @@ http.interceptors.request.use(
 
 http.interceptors.response.use(
   function (response) {
-    if (response.data.code === -1) {
-    }
     if (response.data.code === -2) {
       localStorage.removeItem('h5_token')
       localStorage.removeItem('h5_userInfo')

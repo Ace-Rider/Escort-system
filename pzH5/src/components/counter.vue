@@ -3,7 +3,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineProps, defineEmits, watch } from 'vue'
+import { ref, onMounted, defineProps, defineEmits } from 'vue'
+
+defineOptions({
+  name: 'OrderCountDown',
+})
 const props = defineProps({
   second: {
     type: Number,

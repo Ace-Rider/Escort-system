@@ -2,6 +2,10 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+defineOptions({
+  name: 'MobileMainPage',
+})
+
 const active = ref(0)
 const router = useRouter()
 const route = useRoute()

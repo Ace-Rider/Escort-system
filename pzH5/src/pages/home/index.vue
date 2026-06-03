@@ -2,6 +2,10 @@
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+defineOptions({
+  name: 'HomePage',
+})
+
 const searchValue = ref()
 const { proxy } = getCurrentInstance()
 const homeData = ref({

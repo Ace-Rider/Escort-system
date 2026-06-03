@@ -2,6 +2,10 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+defineOptions({
+  name: 'UserCenterPage',
+})
+
 const userInfo = computed(() => {
   return JSON.parse(localStorage.getItem('h5_userInfo')) || {}
 })

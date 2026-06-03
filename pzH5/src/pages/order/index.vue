@@ -2,6 +2,11 @@
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import counter from '../../components/counter.vue'
 import { useRouter } from 'vue-router'
+
+defineOptions({
+  name: 'OrderListPage',
+})
+
 const active = ref('')
 const { proxy } = getCurrentInstance()
 const order = ref([])

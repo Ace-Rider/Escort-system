@@ -54,7 +54,7 @@ const router = createRouter({
   routes: routes,
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   if (to.path !== '/login') {
     if (!localStorage.getItem('h5_token')) {
       return '/login'
