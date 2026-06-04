@@ -1,310 +1,417 @@
-# 陪诊系统 (Accompanying Medical System)
+# 陪诊系统
 
-## 项目简介
+一个基于 Vue 3 + Vite 构建的陪诊服务项目，包含用户侧 H5 应用和运营侧管理后台两部分。项目围绕“预约陪诊服务”这一核心流程展开，覆盖用户下单、订单查看、后台管理、人员管理和数据统计等场景。
 
-陪诊系统是一个综合性的医疗陪诊服务平台，提供从预约挂号、陪诊服务到订单管理的完整解决方案。该系统包含两个主要部分：
+当前项目还在 H5 下单页中加入了一个轻量 AI 演示能力：用户可以用自然语言描述陪诊需求，系统会结合当前页面上下文生成结构化建议，并支持一键回填到订单表单。
 
-- **pzadmin**: 管理后台系统，用于管理员、陪诊人员和订单的管理
-- **pzH5**: H5移动端应用，面向用户提供陪诊服务预约和查询功能
+---
 
-## 技术栈
+## 项目概览
 
-### pzadmin (管理后台)
-- **前端框架**: Vue 3 + Composition API
-- **构建工具**: Vite
-- **UI组件库**: Element Plus
-- **状态管理**: Pinia + pinia-plugin-persistedstate
-- **路由**: Vue Router 5
-- **HTTP客户端**: Axios
-- **图表库**: ECharts 6
-- **样式**: Less
-- **日期处理**: Dayjs
-- **代码规范**: ESLint + Prettier + Oxlint
+项目分为两个子应用：
 
-### pzH5 (H5移动端)
-- **前端框架**: Vue 3 + Composition API
-- **构建工具**: Vite
-- **UI组件库**: Vant 4
-- **状态管理**: Pinia
-- **路由**: Vue Router 5
-- **HTTP客户端**: Axios
-- **二维码**: qrcode
-- **样式**: Less
-- **代码规范**: ESLint + Prettier + Oxlint
+- `pzH5`：用户端 H5 移动应用
+- `pzadmin`：后台管理端
+
+它们共享同一套业务目标，但面向的角色不同：
+
+- H5 端主要服务普通用户，重点在于下单体验、订单查询和个人中心
+- 后台主要服务运营、管理员和调度人员，重点在于订单管理、人员管理和数据统计
+
+从当前代码结构来看，这个项目属于典型的前后端分离前端仓库，H5 和后台分别维护自己的路由、API 封装、页面和组件。
+
+---
 
 ## 项目结构
 
-```
+```text
 陪诊系统/
-├── pzadmin/                    # 管理后台
-│   ├── public/
-│   │   └── images/            # 静态图片资源
+├── pzH5/                         # H5 移动端
+│   ├── public/                   # 静态资源
 │   ├── src/
-│   │   ├── api/               # API接口
-│   │   ├── components/        # 公共组件
-│   │   │   ├── aside.vue      # 侧边栏
-│   │   │   ├── navHeader.vue  # 导航头部
-│   │   │   └── panelHead.vue  # 面板头部
-│   │   ├── router/            # 路由配置
-│   │   ├── stores/            # Pinia状态管理
-│   │   ├── utils/             # 工具函数
-│   │   ├── views/             # 页面视图
-│   │   │   ├── auth/          # 权限管理
-│   │   │   │   ├── admin/     # 管理员管理
-│   │   │   │   └── group/     # 用户组管理
-│   │   │   ├── dashboard/     # 数据统计面板
-│   │   │   ├── login/         # 登录页面
-│   │   │   └── vppz/          # 陪诊管理
-│   │   │       ├── order/     # 订单管理
-│   │   │       └── staff/     # 陪诊人员管理
-│   │   ├── App.vue            # 根组件
-│   │   ├── main.js            # 入口文件
-│   │   └── style.css          # 全局样式
+│   │   ├── api/                  # 接口封装
+│   │   ├── components/           # 公共组件
+│   │   ├── pages/                # 页面
+│   │   ├── router/               # 路由配置
+│   │   ├── stores/               # 状态管理
+│   │   └── utils/                # 工具函数 / mock 逻辑
 │   ├── package.json
-│   ├── vite.config.js
-│   └── README.md
-├── pzH5/                      # H5移动端
-│   ├── public/
-│   │   └── images/            # 静态图片资源
+│   └── vite.config.js
+├── pzadmin/                      # 管理后台
+│   ├── public/                   # 静态资源
 │   ├── src/
-│   │   ├── api/               # API接口
-│   │   ├── components/        # 公共组件
-│   │   │   ├── counter.vue    # 计数器
-│   │   │   └── statusBar.vue  # 状态栏
-│   │   ├── pages/             # 页面
-│   │   │   ├── createOrder/   # 创建订单
-│   │   │   ├── detail/        # 订单详情
-│   │   │   ├── home/          # 首页
-│   │   │   ├── login/         # 登录
-│   │   │   ├── order/         # 订单列表
-│   │   │   └── user/          # 用户中心
-│   │   ├── router/            # 路由配置
-│   │   ├── stores/            # Pinia状态管理
-│   │   ├── utils/             # 工具函数
-│   │   ├── App.vue            # 根组件
-│   │   ├── main.js            # 入口文件
-│   │   └── style.css          # 全局样式
+│   │   ├── api/                  # 接口封装
+│   │   ├── components/           # 公共组件
+│   │   ├── router/               # 路由配置
+│   │   ├── stores/               # 状态管理
+│   │   ├── utils/                # 工具函数
+│   │   └── views/                # 后台页面
 │   ├── package.json
-│   ├── vite.config.js
-│   └── README.md
-└── README.md                  # 项目总README
+│   └── vite.config.js
+└── README.md                     # 项目总说明
 ```
 
-## 功能特性
+---
 
-### 管理后台 (pzadmin)
-- **用户管理**: 管理员和用户组权限管理
-- **陪诊人员管理**: 陪诊人员的注册、审核和信息管理
-- **订单管理**: 陪诊订单的创建、分配、跟踪和完成
-- **数据统计**: 使用ECharts展示各类统计数据和趋势图
-- **权限控制**: 基于角色的访问控制系统
+## 技术栈
 
-### H5移动端 (pzH5)
-- **用户注册登录**: 用户账号管理和登录功能
-- **医院选择**: 支持选择不同的医院进行陪诊服务
-- **订单创建**: 便捷的陪诊订单创建流程
-- **订单查询**: 查看订单状态和历史记录
-- **个人中心**: 用户信息管理和设置
+### H5 端 `pzH5`
 
-## 功能模块详细说明
+- Vue 3
+- Vue Router 5
+- Vant 4
+- Axios
+- Pinia
+- qrcode
+- Less
+- Vite
+- `unplugin-auto-import`
+- `unplugin-vue-components`
 
-### 管理后台 (pzadmin) 模块
+### 后台端 `pzadmin`
 
-#### 1. 权限管理 (auth)
-##### 管理员管理 (admin)
-- **管理员列表**: 查看所有管理员账号信息
-- **管理员添加**: 创建新的管理员账号，设置基本信息和权限
-- **管理员编辑**: 修改管理员信息、密码和权限设置
-- **管理员删除**: 删除不再需要的管理员账号
-- **权限分配**: 为管理员分配不同的操作权限和角色
+- Vue 3
+- Vue Router 5
+- Element Plus
+- Axios
+- Pinia
+- `pinia-plugin-persistedstate`
+- ECharts
+- Dayjs
+- Less
+- Vite
 
-##### 用户组管理 (group)
-- **用户组列表**: 显示所有用户组及其成员数量
-- **用户组创建**: 新建用户组，定义组名和描述
-- **用户组编辑**: 修改用户组信息和成员列表
-- **用户组删除**: 删除空的用户组
-- **成员管理**: 添加/移除用户组成员，批量操作
+### 工程化与规范
 
-#### 2. 数据统计面板 (dashboard)
-- **统计概览**: 显示关键指标，如总订单数、活跃陪诊人员数、用户数量等
-- **趋势图表**: 使用ECharts展示订单量、收入等数据的时序变化
-- **数据导出**: 支持导出统计数据为Excel或PDF格式
-- **实时更新**: 数据实时刷新，反映最新状态
-- **自定义时间范围**: 支持按日、周、月、年查看统计数据
+- ESLint
+- Oxlint
+- Prettier
+- npm-run-all2
 
-#### 3. 登录模块 (login)
-- **管理员登录**: 支持用户名/密码登录
-- **记住密码**: 可选择记住登录状态
-- **密码重置**: 忘记密码时通过邮箱或手机重置
-- **登录日志**: 记录登录历史和失败尝试
-- **安全验证**: 支持验证码防止暴力破解
+---
 
-#### 4. 陪诊管理 (vppz)
-##### 订单管理 (order)
-- **订单列表**: 显示所有陪诊订单，按状态筛选
-- **订单详情**: 查看订单详细信息，包括用户、陪诊人员、服务内容等
-- **订单分配**: 为新订单分配陪诊人员
-- **订单跟踪**: 实时跟踪订单执行状态
-- **订单完成**: 确认订单完成，更新状态
-- **订单取消**: 处理订单取消申请
-- **订单搜索**: 支持按订单号、用户、日期等搜索
-- **订单导出**: 导出订单数据用于报表
+## 业务模块说明
 
-##### 陪诊人员管理 (staff)
-- **人员列表**: 显示所有注册的陪诊人员信息
-- **人员审核**: 审核新注册陪诊人员的资格
-- **人员信息**: 查看和编辑陪诊人员详细信息
-- **人员状态**: 管理陪诊人员的工作状态（在线/离线/休假）
-- **人员评价**: 查看用户对陪诊人员的评价和评分
-- **人员调度**: 根据订单需求智能调度陪诊人员
-- **人员统计**: 统计陪诊人员的订单完成率、评价等指标
+### H5 端主要页面
 
-### H5移动端 (pzH5) 模块
+#### 首页
 
-#### 1. 首页 (home)
-- **轮播图**: 展示医院宣传图片和活动信息
-- **医院列表**: 显示合作的医院，支持搜索和筛选
-- **服务导航**: 快速导航到不同陪诊服务类型
-- **热门服务**: 推荐热门的陪诊服务项目
-- **公告通知**: 显示系统公告和重要通知
-- **快速预约**: 一键进入预约流程
+位置：
 
-#### 2. 创建订单 (createOrder)
-- **医院选择**: 从列表中选择需要陪诊的医院
-- **服务类型**: 选择陪诊服务类型（如挂号、就诊陪同等）
-- **时间选择**: 选择预约日期和时间段
-- **个人信息**: 填写用户基本信息和联系方式
-- **特殊需求**: 填写特殊陪诊需求和注意事项
-- **费用计算**: 实时计算服务费用
-- **订单确认**: 确认订单信息并提交
+- [`pzH5/src/pages/home/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/pages/home/index.vue)
 
-#### 3. 订单详情 (detail)
-- **订单信息**: 显示订单基本信息和服务详情
-- **陪诊人员**: 显示分配的陪诊人员信息和联系方式
-- **订单状态**: 实时显示订单执行状态
-- **进度跟踪**: 展示订单执行的各个阶段
-- **订单操作**: 支持取消订单、修改需求等操作
+主要职责：
 
-#### 4. 登录模块 (login)
-- **用户登录**: 支持手机号/密码登录
-- **验证码登录**: 支持短信验证码快速登录
-- **第三方登录**: 支持微信、支付宝等第三方账号登录
-- **注册账号**: 新用户注册流程
-- **忘记密码**: 通过短信验证码重置密码
-- **自动登录**: 支持记住登录状态
+- 展示轮播图
+- 展示合作医院或服务入口
+- 作为用户进入下单流程的主要入口
 
-#### 5. 订单列表 (order)
-- **订单筛选**: 按状态（待支付、进行中、已完成、已取消）筛选订单
-- **订单搜索**: 支持按订单号、医院名称搜索
-- **订单排序**: 按时间、状态等排序显示
-- **订单操作**: 查看详情、取消订单、联系陪诊人员等
-- **订单提醒**: 显示即将开始的订单提醒
-- **历史订单**: 查看已完成的订单记录
+#### 创建订单页
 
-#### 6. 用户中心 (user)
-- **个人信息**: 查看和编辑用户基本信息
-- **头像设置**: 上传和更换用户头像
-- **账户安全**: 修改密码、绑定手机号等
-- **我的收藏**: 收藏的医院和服务
-- **消息通知**: 系统消息和订单提醒
-- **帮助中心**: 常见问题解答和使用指南
-- **意见反馈**: 提交用户反馈和建议
-- **关于我们**: 应用版本信息和公司介绍
+位置：
 
-## 环境要求
+- [`pzH5/src/pages/createOrder/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/pages/createOrder/index.vue)
 
-- Node.js: ^20.19.0 || >=22.12.0
+主要职责：
+
+- 选择医院
+- 选择就诊时间
+- 选择陪诊员
+- 填写接送地址和联系电话
+- 填写陪诊需求
+- 生成支付二维码并完成下单
+
+这个页面也是当前 AI 功能接入的核心位置。
+
+#### 订单列表
+
+位置：
+
+- [`pzH5/src/pages/order/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/pages/order/index.vue)
+
+主要职责：
+
+- 展示不同状态的订单
+- 支持点击进入详情
+- 展示待支付订单的倒计时信息
+
+#### 订单详情
+
+位置：
+
+- [`pzH5/src/pages/detail/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/pages/detail/index.vue)
+
+主要职责：
+
+- 展示订单的基本信息和状态
+- 展示支付二维码
+- 展示订单流程信息
+
+#### 用户中心
+
+位置：
+
+- [`pzH5/src/pages/user/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/pages/user/index.vue)
+
+主要职责：
+
+- 展示用户信息
+- 进入订单页
+- 退出登录
+
+### 后台端主要页面
+
+#### 登录页
+
+位置：
+
+- [`pzadmin/src/views/login/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzadmin/src/views/login/index.vue)
+
+主要职责：
+
+- 后台用户登录
+- 登录后动态加载菜单权限
+
+#### 仪表盘
+
+位置：
+
+- [`pzadmin/src/views/dashboard/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzadmin/src/views/dashboard/index.vue)
+
+主要职责：
+
+- 展示用户信息
+- 展示订单状态统计
+- 展示折线图数据
+
+#### 订单管理
+
+位置：
+
+- [`pzadmin/src/views/vppz/order/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzadmin/src/views/vppz/order/index.vue)
+
+主要职责：
+
+- 查看订单列表
+- 管理订单状态
+- 处理订单业务流程
+
+#### 陪诊员管理
+
+位置：
+
+- [`pzadmin/src/views/vppz/staff/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzadmin/src/views/vppz/staff/index.vue)
+
+主要职责：
+
+- 管理陪诊员信息
+- 查看陪诊员详情
+- 处理相关人员数据
+
+#### 权限管理
+
+位置：
+
+- [`pzadmin/src/views/auth/admin/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzadmin/src/views/auth/admin/index.vue)
+- [`pzadmin/src/views/auth/group/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzadmin/src/views/auth/group/index.vue)
+
+主要职责：
+
+- 管理管理员账号
+- 管理用户组与菜单权限
+
+---
+
+## H5 AI 需求助手
+
+当前项目中最有代表性的扩展功能，是 H5 创建订单页里的 AI 需求助手。
+
+### 功能位置
+
+页面位置：
+
+- [`pzH5/src/pages/createOrder/index.vue`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/pages/createOrder/index.vue)
+
+核心组件：
+
+- [`pzH5/src/components/AiDemandAssistant.vue`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/components/AiDemandAssistant.vue)
+
+接口入口：
+
+- [`pzH5/src/api/index.js`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/api/index.js)
+
+本地 mock 逻辑：
+
+- [`pzH5/src/utils/mockAiOrderDraft.js`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/utils/mockAiOrderDraft.js)
+
+### 设计目标
+
+这个 AI 功能不是做成聊天机器人，而是作为“下单辅助工具”：
+
+- 降低用户填写需求的门槛
+- 把自然语言描述整理成更正式的订单需求文本
+- 输出结构化建议，便于前端展示
+- 为未来接入真实 AI 接口预留数据结构
+
+### 当前能力
+
+用户在下单页输入一句自然语言，例如：
+
+```text
+老人第一次去医院复诊，需要陪同挂号、看诊和取药。
+```
+
+系统会结合当前页面上下文（已选医院、时间、陪诊员）生成：
+
+- 推荐服务类型
+- 需求草稿
+- 准备材料
+- 风险提醒
+
+并支持：
+
+- 复制需求草稿
+- 确认风险提醒
+- 一键填入订单表单
+
+### 当前实现方式
+
+目前 AI 能力没有直连真实模型，而是采用前端 mock 演示：
+
+- `api.aiOrderDraft()` 当前调用的是本地 mock
+- mock 会根据关键词和上下文推断结果
+- 返回结构与未来真实 AI 接口尽量保持一致
+
+这样做的好处是：
+
+- 前端可以独立开发和演示
+- 页面交互可以先跑通
+- 后续替换成真实 AI 服务时，组件层改动较小
+
+### mock 已支持的规则
+
+当前 mock 规则已经支持以下维度：
+
+- 科室词：心内科、肿瘤科、骨科等
+- 人群词：老人、儿童、孕妇等
+- 动作词：挂号、缴费、取报告、检查、取药、看诊等
+- 上下文信息：医院、时间、陪诊员、服务名称
+
+这使得它虽然不是“真 AI”，但在前端演示上已经能体现真实业务思路。
+
+---
+
+## 运行环境
+
+项目要求：
+
+- Node.js `^20.19.0 || >=22.12.0`
 - npm
 
-## 安装和运行
+建议使用较新的 Node 版本，以避免 Vite 和依赖包的兼容问题。
 
-### 管理后台 (pzadmin)
+---
 
-```bash
-# 进入pzadmin目录
-cd pzadmin
+## 安装与启动
 
-# 安装依赖
-npm install
-
-# 启动开发服务器
-npm run dev
-
-# 构建生产版本
-npm run build
-
-```
-
-### H5移动端 (pzH5)
+### 启动 H5 端
 
 ```bash
-# 进入pzH5目录
 cd pzH5
-
-# 安装依赖
 npm install
-
-# 启动开发服务器
-npm run dev
-
-# 构建生产版本
-npm run build
-
-```
-
-## 开发环境配置
-
-### 推荐IDE设置
-- [VS Code](https://code.visualstudio.com/)
-- Vue官方扩展: [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
-- 禁用Vetur扩展
-
-### 浏览器调试工具
-- Chromium浏览器 (Chrome, Edge等):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - 启用自定义对象格式化器
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - 启用自定义对象格式化器
-
-## API接口
-
-系统使用统一的API接口管理，位于各项目的 `src/api/` 目录下。主要接口包括：
-
-- 用户认证接口
-- 医院信息接口
-- 订单管理接口
-- 陪诊人员接口
-- 数据统计接口
-
-## 状态管理
-
-使用Pinia进行状态管理：
-
-- pzadmin: 包含持久化状态插件
-- pzH5: 基础状态管理
-
-## 路由配置
-
-- pzadmin: 后台管理路由，包含权限验证
-- pzH5: H5单页应用路由，支持页面导航
-
-## 构建和部署
-
-### 开发环境
-```bash
 npm run dev
 ```
 
-### 生产环境
+说明：
+
+- 默认开发端口为 `4500`
+- 启动后可在本地浏览器中访问对应地址进行调试
+
+### 启动后台端
+
 ```bash
+cd pzadmin
+npm install
+npm run dev
+```
+
+说明：
+
+- 后台使用 Vite 默认开发端口
+- 登录后会按本地菜单权限数据动态加载页面
+
+---
+
+## 常用命令
+
+### H5 端
+
+```bash
+cd pzH5
+npm run dev
 npm run build
+npm run lint
 npm run preview
 ```
 
-### 代码质量
+### 后台端
+
 ```bash
-npm run lint    # ESLint检查和修复
-npm run format  # Prettier格式化
+cd pzadmin
+npm run dev
+npm run build
+npm run lint
+npm run preview
 ```
+
+---
+
+## 接口与请求层
+
+目前 H5 和后台都有各自独立的请求封装。
+
+### H5 请求封装
+
+- [`pzH5/src/utils/request.js`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/utils/request.js)
+
+特点：
+
+- 统一配置 `baseURL`
+- 自动在请求头中携带 `h5_token`
+- 处理登录失效场景
+
+### 后台请求封装
+
+- [`pzadmin/src/utils/request.js`](C:/Users/25329/Desktop/陪诊系统/pzadmin/src/utils/request.js)
+
+特点：
+
+- 自动携带后台登录 token
+- 处理登录失效和权限相关逻辑
+
+### 当前说明
+
+- 业务接口当前主要依赖远程服务
+- AI 需求助手是前端 mock，不走真实后端 AI 服务
+
+---
+
+## 工程化与代码质量
+
+项目当前已接入：
+
+- ESLint
+- Oxlint
+- Prettier
+
+对应命令：
+
+```bash
+npm run lint
+npm run build
+```
+
+近期对 H5 端做过一轮整理，当前 AI 需求助手相关代码已经可以通过 `lint` 和 `build`。
+
+---
 
