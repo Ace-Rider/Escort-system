@@ -72,8 +72,8 @@ const generateSuggestion = async () => {
     result.value = data
     resultStale.value = false
     riskConfirmed.value = false
-  } catch {
-    errorMessage.value = '生成失败，请稍后重试'
+  } catch (error) {
+    errorMessage.value = error?.response?.data?.message || '生成失败，请稍后重试'
     result.value = null
   } finally {
     loading.value = false

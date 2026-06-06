@@ -1,24 +1,26 @@
 # 陪诊系统
 
-一个基于 Vue 3 + Vite 构建的陪诊服务项目，包含用户侧 H5 应用和运营侧管理后台两部分。项目围绕“预约陪诊服务”这一核心流程展开，覆盖用户下单、订单查看、后台管理、人员管理和数据统计等场景。
+一个基于 Vue 3 + Vite 构建的陪诊服务项目，包含用户侧 H5 应用、运营侧管理后台，以及一个专门用于 AI 需求整理的 Node 中转服务。项目围绕“预约陪诊服务”这一核心流程展开，覆盖用户下单、订单查看、后台管理、人员管理和数据统计等场景。
 
-当前项目还在 H5 下单页中加入了一个轻量 AI 演示能力：用户可以用自然语言描述陪诊需求，系统会结合当前页面上下文生成结构化建议，并支持一键回填到订单表单。
+当前项目最有代表性的扩展能力，是 H5 下单页里的 AI 需求助手。用户可以用自然语言描述陪诊需求，系统会结合当前页面上下文生成结构化建议，并支持一键回填到订单表单。
 
 ---
 
 ## 项目概览
 
-项目分为两个子应用：
+当前仓库包含三个主要部分：
 
 - `pzH5`：用户端 H5 移动应用
 - `pzadmin`：后台管理端
+- `ai-server`：AI 中转服务，负责管理 Key、组织 Prompt、调用模型并清洗结果
 
-它们共享同一套业务目标，但面向的角色不同：
+它们的分工如下：
 
 - H5 端主要服务普通用户，重点在于下单体验、订单查询和个人中心
 - 后台主要服务运营、管理员和调度人员，重点在于订单管理、人员管理和数据统计
+- `ai-server` 不承担完整业务后端职责，只负责 AI 需求整理这条链路
 
-从当前代码结构来看，这个项目属于典型的前后端分离前端仓库，H5 和后台分别维护自己的路由、API 封装、页面和组件。
+从当前代码结构来看，这个项目属于典型的前后端分离前端仓库，H5 与后台分别维护自己的页面、路由和请求层；AI 能力则通过一个独立的 Node 服务和外部模型平台对接。
 
 ---
 
@@ -34,7 +36,8 @@
 │   │   ├── pages/                # 页面
 │   │   ├── router/               # 路由配置
 │   │   ├── stores/               # 状态管理
-│   │   └── utils/                # 工具函数 / mock 逻辑
+│   │   └── utils/                # 工具函数 / AI 请求封装 / mock 逻辑
+│   ├── .env.example              # H5 本地 AI 服务地址示例
 │   ├── package.json
 │   └── vite.config.js
 ├── pzadmin/                      # 管理后台
@@ -48,6 +51,14 @@
 │   │   └── views/                # 后台页面
 │   ├── package.json
 │   └── vite.config.js
+├── ai-server/                    # AI 中转服务
+│   ├── src/
+│   │   ├── prompts/              # Prompt 组织
+│   │   ├── routes/               # AI 接口路由
+│   │   ├── services/             # 模型调用服务
+│   │   └── utils/                # 结果清洗工具
+│   ├── .env.example              # 模型平台配置示例
+│   └── package.json
 └── README.md                     # 项目总说明
 ```
 
@@ -80,6 +91,14 @@
 - Dayjs
 - Less
 - Vite
+
+### AI 服务 `ai-server`
+
+- Node.js
+- Express
+- dotenv
+- cors
+- OpenAI 兼容接口调用方式
 
 ### 工程化与规范
 
@@ -236,11 +255,23 @@
 
 - [`pzH5/src/components/AiDemandAssistant.vue`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/components/AiDemandAssistant.vue)
 
-接口入口：
+前端接口入口：
 
 - [`pzH5/src/api/index.js`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/api/index.js)
+- [`pzH5/src/utils/aiRequest.js`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/utils/aiRequest.js)
 
-本地 mock 逻辑：
+AI 服务端入口：
+
+- [`ai-server/src/index.js`](C:/Users/25329/Desktop/陪诊系统/ai-server/src/index.js)
+- [`ai-server/src/routes/ai.js`](C:/Users/25329/Desktop/陪诊系统/ai-server/src/routes/ai.js)
+- [`ai-server/src/services/orderDraftService.js`](C:/Users/25329/Desktop/陪诊系统/ai-server/src/services/orderDraftService.js)
+
+Prompt 与结果清洗：
+
+- [`ai-server/src/prompts/orderDraftPrompt.js`](C:/Users/25329/Desktop/陪诊系统/ai-server/src/prompts/orderDraftPrompt.js)
+- [`ai-server/src/utils/normalizeAiResult.js`](C:/Users/25329/Desktop/陪诊系统/ai-server/src/utils/normalizeAiResult.js)
+
+历史 mock 参考：
 
 - [`pzH5/src/utils/mockAiOrderDraft.js`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/utils/mockAiOrderDraft.js)
 
@@ -251,7 +282,7 @@
 - 降低用户填写需求的门槛
 - 把自然语言描述整理成更正式的订单需求文本
 - 输出结构化建议，便于前端展示
-- 为未来接入真实 AI 接口预留数据结构
+- 让 AI 结果可以直接进入真实业务表单
 
 ### 当前能力
 
@@ -261,7 +292,7 @@
 老人第一次去医院复诊，需要陪同挂号、看诊和取药。
 ```
 
-系统会结合当前页面上下文（已选医院、时间、陪诊员）生成：
+系统会结合当前页面上下文（已选医院、时间、陪诊员、服务名称）生成：
 
 - 推荐服务类型
 - 需求草稿
@@ -276,28 +307,55 @@
 
 ### 当前实现方式
 
-目前 AI 能力没有直连真实模型，而是采用前端 mock 演示：
+当前默认实现已经不是纯前端 mock，而是“前端 + Node 中转 + 模型平台”的结构：
 
-- `api.aiOrderDraft()` 当前调用的是本地 mock
-- mock 会根据关键词和上下文推断结果
-- 返回结构与未来真实 AI 接口尽量保持一致
+1. H5 端收集用户输入和页面上下文
+2. 前端将请求发送给本地 `ai-server`
+3. `ai-server` 读取环境变量中的 Key、模型地址和模型名
+4. 服务端组织 Prompt，并调用 OpenAI 兼容接口
+5. 模型返回 JSON 结果后，服务端会统一清洗
+6. 前端拿到稳定结构后进行展示和回填
 
 这样做的好处是：
 
-- 前端可以独立开发和演示
-- 页面交互可以先跑通
-- 后续替换成真实 AI 服务时，组件层改动较小
+- 前端不暴露 API Key
+- Prompt 和模型切换都集中在服务端管理
+- 模型输出不稳定的问题可以在服务端先兜住
+- 前端组件层几乎不需要关心具体平台差异
 
-### mock 已支持的规则
+### 当前接入方式
 
-当前 mock 规则已经支持以下维度：
+当前默认兼容阿里百炼 / DeepSeek 兼容模式，`.env.example` 中的默认配置为：
 
-- 科室词：心内科、肿瘤科、骨科等
-- 人群词：老人、儿童、孕妇等
-- 动作词：挂号、缴费、取报告、检查、取药、看诊等
-- 上下文信息：医院、时间、陪诊员、服务名称
+```env
+AI_API_KEY=your_api_key
+AI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+AI_MODEL=deepseek-v4-pro
+PORT=3001
+```
 
-这使得它虽然不是“真 AI”，但在前端演示上已经能体现真实业务思路。
+如果后续改为其他 OpenAI 兼容平台，通常只需要调整：
+
+- `AI_API_KEY`
+- `AI_BASE_URL`
+- `AI_MODEL`
+
+而不需要重写前端交互层。
+
+### AI 调用流程
+
+```text
+H5 下单页输入需求
+-> AiDemandAssistant.vue 调用 api.aiOrderDraft()
+-> pzH5/src/utils/aiRequest.js 请求本地 ai-server
+-> ai-server/routes/ai.js 校验 text 和 context
+-> ai-server/services/orderDraftService.js 读取配置并调用模型
+-> ai-server/prompts/orderDraftPrompt.js 组织 messages
+-> 模型返回 JSON 字符串
+-> ai-server/utils/normalizeAiResult.js 清洗结果
+-> 前端展示推荐服务、需求草稿、准备材料、风险提醒
+-> 用户确认后，一键填入订单表单
+```
 
 ---
 
@@ -314,20 +372,60 @@
 
 ## 安装与启动
 
-### 启动 H5 端
+### 1. 启动 H5 端
 
 ```bash
 cd pzH5
 npm install
+```
+
+可选配置：
+
+在 `pzH5` 目录下新建 `.env` 或 `.env.development`，内容可参考：
+
+```env
+VITE_AI_BASE_URL=http://127.0.0.1:3001
+```
+
+启动：
+
+```bash
 npm run dev
 ```
 
 说明：
 
 - 默认开发端口为 `4500`
-- 启动后可在本地浏览器中访问对应地址进行调试
+- H5 端会通过 `VITE_AI_BASE_URL` 调用本地 `ai-server`
 
-### 启动后台端
+### 2. 启动 AI 服务
+
+```bash
+cd ai-server
+npm install
+```
+
+在 `ai-server` 目录下新建 `.env`，内容可参考：
+
+```env
+AI_API_KEY=阿里百炼的模型平台 Key
+AI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+AI_MODEL=deepseek-v4-pro
+PORT=3001
+```
+
+启动：
+
+```bash
+npm run dev
+```
+
+说明：
+
+- 默认端口为 `3001`
+- 可通过 `http://127.0.0.1:3001/health` 检查服务是否启动成功
+
+### 3. 启动后台端
 
 ```bash
 cd pzadmin
@@ -354,6 +452,14 @@ npm run lint
 npm run preview
 ```
 
+### AI 服务
+
+```bash
+cd ai-server
+npm run dev
+npm run start
+```
+
 ### 后台端
 
 ```bash
@@ -368,7 +474,7 @@ npm run preview
 
 ## 接口与请求层
 
-目前 H5 和后台都有各自独立的请求封装。
+目前 H5、后台和 AI 服务分别承担不同职责。
 
 ### H5 请求封装
 
@@ -376,9 +482,19 @@ npm run preview
 
 特点：
 
-- 统一配置 `baseURL`
+- 统一配置业务 `baseURL`
 - 自动在请求头中携带 `h5_token`
 - 处理登录失效场景
+
+### H5 AI 请求封装
+
+- [`pzH5/src/utils/aiRequest.js`](C:/Users/25329/Desktop/陪诊系统/pzH5/src/utils/aiRequest.js)
+
+特点：
+
+- 单独请求本地 `ai-server`
+- 不和原有远程业务接口混用
+- 便于切换本地 AI 服务地址
 
 ### 后台请求封装
 
@@ -389,10 +505,13 @@ npm run preview
 - 自动携带后台登录 token
 - 处理登录失效和权限相关逻辑
 
-### 当前说明
+### AI 服务职责
 
-- 业务接口当前主要依赖远程服务
-- AI 需求助手是前端 mock，不走真实后端 AI 服务
+- 管理模型平台 Key 和配置
+- 组织 Prompt
+- 调用 OpenAI 兼容模型接口
+- 清洗模型结果
+- 向前端返回统一结构和统一错误文案
 
 ---
 
@@ -411,7 +530,17 @@ npm run lint
 npm run build
 ```
 
-近期对 H5 端做过一轮整理，当前 AI 需求助手相关代码已经可以通过 `lint` 和 `build`。
+近期已完成的验证包括：
+
+- `pzH5` 的 `lint` 和 `build` 通过
+- `ai-server` 可正常启动并通过 `/health` 检查
 
 ---
 
+## 说明
+
+这个 README 主要面向整个仓库的整体结构与 AI 接入方案。  
+如果想分别查看两个前端子项目的详细说明，可以再查看：
+
+- [`pzH5/README.md`](C:/Users/25329/Desktop/陪诊系统/pzH5/README.md)
+- [`pzadmin/README.md`](C:/Users/25329/Desktop/陪诊系统/pzadmin/README.md)

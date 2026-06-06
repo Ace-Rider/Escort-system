@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.DS_Store
+
+pzH5/.env
+pzH5/.env.*
+!pzH5/.env.example
+
+pzadmin/.env
+pzadmin/.env.*
+!pzadmin/.env.example
+
+ai-server/.env
+ai-server/node_modules/

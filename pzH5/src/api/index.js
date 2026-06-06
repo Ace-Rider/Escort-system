@@ -1,5 +1,5 @@
 import request from '@/utils/request.js'
-import mockAiOrderDraft from '@/utils/mockAiOrderDraft.js'
+import aiRequest from '@/utils/aiRequest.js'
 
 export default {
   login(data) {
@@ -21,6 +21,6 @@ export default {
     return request.get('/order/detail', { params })
   },
   aiOrderDraft(data) {
-    return mockAiOrderDraft(data)
+    return aiRequest.post('/ai/order-draft', data)
   },
 }
